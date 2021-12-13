@@ -27,20 +27,6 @@ public class ConnectionManager {
         }
     }
 
-    /*private ConnectionManager() {
-        try {
-            InitialContext context = new InitialContext();
-            DataSource ds = (DataSource) context.lookup("java:/comp/env/jdbc/company");
-            if (ds == null) {
-                throw new IllegalArgumentException("Data source not found...");
-            } else {
-                connection = ds.getConnection();
-            }
-        } catch (NamingException | SQLException e) {
-            e.printStackTrace();
-        }
-    }*/
-
     public static ConnectionManager getInstance() throws CompanyException {
         ConnectionManager localInstance = instance;
         if (localInstance == null) {
