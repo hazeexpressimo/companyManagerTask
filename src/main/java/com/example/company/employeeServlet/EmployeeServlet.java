@@ -7,6 +7,7 @@ import com.example.company.dao.CompanyDAO;
 import com.example.company.dao.DepartmentDAO;
 import com.example.company.dao.EmployeeDAO;
 import com.example.company.data.Company;
+import com.example.company.data.CompanyException;
 import com.example.company.data.Department;
 import com.example.company.data.Employee;
 
@@ -26,16 +27,21 @@ import java.util.List;
 @WebServlet(name = "employeeServlet", value = {"/addEmployee", "/showEmployee", "/changeScheduleEmployee", "/mainPage"})
 public class EmployeeServlet extends HttpServlet {
 
-    public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+    public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException, NullPointerException {
         request.setCharacterEncoding("UTF-8");
         response.setContentType("text/html; charset=UTF-8");
         response.setCharacterEncoding("UTF-8");
         if (request.getRequestURI().contains("mainPage")) {
-            init(request);
+            init(request, response);
             request.getRequestDispatcher("/mainPage.jsp").forward(request, response);
         }
         if (request.getRequestURI().contains("showEmployee")) {
-            List<Employee> employees = new EmployeeDAO().findAll();
+            List<Employee> employees = null;
+            try {
+                employees = new EmployeeDAO().findAll();
+            } catch (CompanyException e) {
+                e.printStackTrace();
+            }
             request.setAttribute("empbean", new EmployeeBean(employees));
             request.getRequestDispatcher("/employee.jsp").forward(request, response);
         }
@@ -73,8 +79,8 @@ public class EmployeeServlet extends HttpServlet {
             EmployeeDAO employeeDAO = new EmployeeDAO();
             employeeDAO.addEmployee(employee);
             response.sendRedirect(request.getContextPath() + "/mainPage");
-        } catch (ParseException | SQLException | IOException e) {
-            e.printStackTrace();
+        } catch (ParseException | SQLException | IOException | CompanyException exception) {
+            exception.printStackTrace();
         }
     }
 
@@ -89,26 +95,38 @@ public class EmployeeServlet extends HttpServlet {
             EmployeeDAO employeeDAO = new EmployeeDAO();
             employeeDAO.changeScheduleEmployee(employee);
             response.sendRedirect(request.getContextPath() + "/mainPage");
-        } catch (SQLException | IOException exception) {
+        } catch (SQLException | IOException | CompanyException exception) {
             exception.printStackTrace();
         }
     }
 
-    public void init(HttpServletRequest request) {
-        companyBeansStart(request);
-        getCompanyEarning(request);
+    public void init(HttpServletRequest request, HttpServletResponse response) {
+        try {
+            companyBeansStart(request);
+            getCompanyEarning(request, response);
+        } catch (NullPointerException | CompanyException exception) {
+            exception.printStackTrace();
+        }
     }
 
-    public void getCompanyEarning(HttpServletRequest request) {
-        List<Company> company = new CompanyDAO().getCompanyStatistics();
-        request.setAttribute("companyBean", new CompanyBean(company));
+    public void getCompanyEarning(HttpServletRequest request, HttpServletResponse response) throws CompanyException {
+        try {
+            List<Company> company = new CompanyDAO().getCompanyStatistics();
+            request.setAttribute("companyBean", new CompanyBean(company));
+        } catch (Exception e) {
+            throw new CompanyException("Cannot create company beans: " + e.getMessage());
+        }
     }
 
-    public void companyBeansStart(HttpServletRequest request) {
-        List<Department> departments = new DepartmentDAO().findAll();
-        request.setAttribute("depbean", new DepartmentBean(departments));
-        List<Employee> employees = new EmployeeDAO().findAll();
-        request.setAttribute("empbean", new EmployeeBean(employees));
+    public void companyBeansStart(HttpServletRequest request) throws CompanyException {
+        try {
+            List<Department> departments = new DepartmentDAO().findAll();
+            request.setAttribute("depbean", new DepartmentBean(departments));
+            List<Employee> employees = new EmployeeDAO().findAll();
+            request.setAttribute("empbean", new EmployeeBean(employees));
+        } catch (Exception e) {
+            throw new CompanyException("Cannot create company beans: " + e.getMessage());
+        }
     }
 
     public void destroy() {

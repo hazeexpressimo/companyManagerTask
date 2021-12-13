@@ -1,6 +1,7 @@
 package com.example.company.dao;
 
 import com.example.company.data.Company;
+import com.example.company.data.CompanyException;
 import com.example.company.data.DateUtil;
 import com.example.company.dbConnection.ConnectionManager;
 import com.example.company.dbConnection.SqlRequest;
@@ -14,7 +15,7 @@ import java.util.*;
 
 public class CompanyDAO {
 
-    public Map<Boolean, List<Integer>> getCompanyPreference() {
+    public Map<Boolean, List<Integer>> getCompanyPreference() throws CompanyException {
         Map<Boolean, List<Integer>> result = new HashMap<>();
         Connection connection = ConnectionManager.getInstance().getConnection();
         try (Statement statement = connection.createStatement()) {
@@ -51,7 +52,7 @@ public class CompanyDAO {
         return result;
     }
 
-    public List<Company> getCompanyStatistics() {
+    public List<Company> getCompanyStatistics() throws CompanyException {
         List<Company> result = new ArrayList<>();
         int positiveEmp;
         int negativeEmp;

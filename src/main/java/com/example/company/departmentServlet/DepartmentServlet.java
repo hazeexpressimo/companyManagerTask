@@ -3,6 +3,7 @@ import com.example.company.beans.DepartmentBean;
 import com.example.company.beans.EmployeeBean;
 import com.example.company.dao.DepartmentDAO;
 import com.example.company.dao.EmployeeDAO;
+import com.example.company.data.CompanyException;
 import com.example.company.data.Department;
 import com.example.company.data.Employee;
 
@@ -22,7 +23,12 @@ public class DepartmentServlet extends HttpServlet {
 
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
         if (request.getRequestURI().contains("showDepartment")) {
-            List<Department> departments = new DepartmentDAO().findAll();
+            List<Department> departments = null;
+            try {
+                departments = new DepartmentDAO().findAll();
+            } catch (CompanyException e) {
+                e.printStackTrace();
+            }
             request.setAttribute("depbean", new DepartmentBean(departments));
             request.getRequestDispatcher("/department.jsp").forward(request, response);
         }
@@ -48,7 +54,7 @@ public class DepartmentServlet extends HttpServlet {
             DepartmentDAO departmentDAO = new DepartmentDAO();
             departmentDAO.addDepartment(department);
             response.sendRedirect(request.getContextPath() + "/mainPage");
-        } catch (SQLException | IOException | ParseException e) {
+        } catch (SQLException | IOException | ParseException | CompanyException e) {
             e.printStackTrace();
         }
     }
@@ -62,7 +68,7 @@ public class DepartmentServlet extends HttpServlet {
             DepartmentDAO departmentDAO = new DepartmentDAO();
             departmentDAO.changeScheduleDepartment(department);
             response.sendRedirect(request.getContextPath() + "/mainPage");
-        } catch (SQLException | IOException exception) {
+        } catch (SQLException | IOException | CompanyException exception) {
             exception.printStackTrace();
         }
     }

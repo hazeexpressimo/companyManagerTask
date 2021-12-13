@@ -1,5 +1,6 @@
 package com.example.company.dao;
 
+import com.example.company.data.CompanyException;
 import com.example.company.data.Employee;
 import com.example.company.dbConnection.ConnectionManager;
 import com.example.company.dbConnection.SqlRequest;
@@ -12,7 +13,7 @@ import java.util.List;
 
 public class EmployeeDAO {
 
-    public List<Employee> findAll() {
+    public List<Employee> findAll() throws CompanyException {
         Connection connection = ConnectionManager.getInstance().getConnection();
         List<Employee> result = new ArrayList<>();
         try {
@@ -37,7 +38,7 @@ public class EmployeeDAO {
         return result;
     }
 
-    public void addEmployee(Employee employee) throws SQLException {
+    public void addEmployee(Employee employee) throws SQLException, CompanyException {
         Connection connection = ConnectionManager.getInstance().getConnection();
         PreparedStatement preparedStatement = connection.prepareStatement(SqlRequest.ADD_EMPLOYEE);
         preparedStatement.setString(1, employee.getFirstName());
@@ -50,7 +51,7 @@ public class EmployeeDAO {
         preparedStatement.executeUpdate();
     }
 
-    public void changeScheduleEmployee(Employee employee) throws SQLException {
+    public void changeScheduleEmployee(Employee employee) throws SQLException, CompanyException {
         Connection connection = ConnectionManager.getInstance().getConnection();
         PreparedStatement preparedStatement = connection.prepareStatement(SqlRequest.CHANGE_SCHEDULE_EMPLOYEE);
         preparedStatement.setTime(1, Time.valueOf(employee.getStartTime()));
